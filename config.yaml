@@ -1,0 +1,3 @@
+server:
+  caldera_server:  '192.168.10.130:8888'  #SERVER_IP
+  caldera_api_session: 'gAAAAABjuCT3cRJGSGN2FtQmUcpJ7cKvRgavXYplNtzqX8yBglcbNTMixZ6HbtlI9CDzrextTOhKy-3H2uQfXRbhhbQthLnOCK0CoyYwd8jt_102_DuS-2f_KpTf6vh6ScrzuMLCWjIWbmvQkND-onMTngHtnwCgwoYuJil1obcOPOabNXLX-p0=' #Caldera API Session

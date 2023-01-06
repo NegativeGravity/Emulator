@@ -4,16 +4,19 @@ import yaml
 
 
 def check_abilities():
+    print("Checking Atomics")
     atomics_repo = "https://api.github.com/repos/redcanaryco/atomic-red-team/contents/atomics?recursive=1"
     missed_abilities = []
     response = requests.get(atomics_repo)
     for ability in response.json():
         if ability["name"] not in abilities and ability["name"].startswith('T'):
             missed_abilities.append(ability['name'])
+    print(f'You Have Missed {len(missed_abilities)} Abilities')
     return missed_abilities
 
 
 def add_new_abilities(abilities):
+    print("Adding Atomic Abilities")
     for ability in abilities:
         ability_yaml = f"https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/{ability}/{ability}.yaml"
         response = requests.get(ability_yaml)
@@ -23,6 +26,7 @@ def add_new_abilities(abilities):
             if 'command' in test['executor']:
                 ability = ability_parser(test, yaml_content)
                 requests.post(url, cookies=cookies, json=ability)
+    print("Now, All Atomics Abilities Are Ready")
 
 
 def ability_parser(ability_yaml, yaml_content):
@@ -64,24 +68,30 @@ def create_new_profile(group_id, techniques_id):
     return response.json()['adversary_id']
 
 
-CALDERA_SERVER = "192.168.10.130:8888"
-API_SESSION = "gAAAAABjuCT3cRJGSGN2FtQmUcpJ7cKvRgavXYplNtzqX8yBglcbNTMixZ6HbtlI9CDzrextTOhKy-3H2uQfXRbhhbQthLnOCK0CoyYwd8jt_102_DuS-2f_KpTf6vh6ScrzuMLCWjIWbmvQkND-onMTngHtnwCgwoYuJil1obcOPOabNXLX-p0="
-abilities = []
+def checking_your_abilities():
+    abilities = []
+    response = requests.get(url, cookies=cookies)
+    print(f'Checking Caldera\'s Abilities')
+    for ability in response.json():
+        abilities.append(ability["technique_id"])
+    print(f'You have {len(abilities)} Abilities Ready On Caldera')
+    return abilities
+
+
+with open("config.yaml", "r") as ymlfile:
+    cfg = yaml.safe_load(ymlfile)
+
+CALDERA_SERVER = cfg['server']['caldera_server']
+API_SESSION = cfg['server']['caldera_api_session']
+
 url = "http://" + CALDERA_SERVER + "/api/v2/abilities"
 cookies = {"API_SESSION": API_SESSION}
-response = requests.get(url, cookies=cookies)
-print(f'Checking Caldera\'s Abilities')
-for ability in response.json():
-    abilities.append(ability["technique_id"])
-print(f'You have {len(abilities)} Abilities Ready On Caldera')
 
-print("Checking Atomics")
+abilities = checking_your_abilities()
+
 missed_abilities = check_abilities()
-print(f'You Have Missed {len(missed_abilities)} Abilities')
 
-print("Adding Atomic Abilities")
 add_new_abilities(missed_abilities)
-print("Now, All Atomics Abilities Are Ready")
 
 group_id = sys.argv[1]
 
